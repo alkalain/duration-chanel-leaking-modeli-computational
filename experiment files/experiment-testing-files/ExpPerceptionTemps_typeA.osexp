@@ -41,7 +41,7 @@ define sketchpad Instructions
 define sketchpad ask_response
 	set duration 0
 	set description "Affiche les stimuli"
-	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse <br />('q' si le premier bleu a été plus long que le deuxième, ou 'm' dans le cas contraire)" x=0 y=0 z_index=0
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse TEMPS<br />('q' si le premier bleu a été plus long que le deuxième, ou 'm' dans le cas contraire)" x=0 y=0 z_index=0
 
 define sketchpad att_getter
 	set duration 500
@@ -113,6 +113,16 @@ define keyboard_response keyboard_response
 	set duration keypress
 	set description "Collecte les réponses du clavier"
 	set allowed_responses "q;m"
+
+define sketchpad new_10_sketchpad
+	set duration 0
+	set description "Affiche les stimuli"
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse CALCUL<br />('X' si aucun calcul n'a été affiché)<br />" x=0 y=0 z_index=0
+
+define sketchpad new_11_sketchpad
+	set duration 0
+	set description "Affiche les stimuli"
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse CALCUL<br />('X' si aucun calcul n'a été présenté)" x=0 y=0 z_index=0
 
 define feedback new_1_feedback
 	set reset_variables yes
@@ -214,7 +224,7 @@ define inline_script new_2_inline_script
 	___prepare__
 	sk_blue = Canvas()
 	sk_blue.rect(-50,-50,100,100, color="dodgerblue", fill=True) #(x,y,largeur, hauteur)
-	
+	sk_blue.text(calcul)
 	
 	sk_red = Canvas()
 	sk_red.rect(-100,-100,200,200, color="firebrick", fill=True)
@@ -223,7 +233,7 @@ define inline_script new_2_inline_script
 	sk_blue_and_red = Canvas()
 	sk_blue_and_red.rect(-100,-100,200,200, color="firebrick", fill=True)
 	sk_blue_and_red.rect(-50,-50,100,100, color="dodgerblue", fill=True)
-	
+	sk_blue_and_red.text(calcul)
 	
 	sk_empty = Canvas()
 	
@@ -235,14 +245,32 @@ define inline_script new_2_inline_script
 	t2_or_d2_alone = (t2-d2)/2
 	__end__
 
+define keyboard_response new_2_keyboard_response
+	set timeout infinite
+	set flush yes
+	set event_type keypress
+	set duration keypress
+	set description "Collecte les réponses du clavier"
+	set correct_response reponse
+	set allowed_responses "1;2;3;4;5;6;7;8;9;0;X;x"
+
 define sketchpad new_2_sketchpad
 	set duration 400
 	set description "Affiche les stimuli"
 
+define keyboard_response new_3_keyboard_response
+	set timeout infinite
+	set flush yes
+	set event_type keypress
+	set duration keypress
+	set description "Collecte les réponses du clavier"
+	set correct_response reponse
+	set allowed_responses "0;1;2;3;4;5;6;7;8;9;X;x"
+
 define sketchpad new_3_sketchpad
 	set duration 0
 	set description "Affiche les stimuli"
-	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse <br />('q' si le premier bleu a été plus long que le deuxième, ou 'm' dans le cas contraire)" x=0 y=0 z_index=0
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse TEMPS<br />('q' si le premier bleu a été plus long que le deuxième, ou 'm' dans le cas contraire)" x=0 y=0 z_index=0
 
 define sketchpad new_4_sketchpad
 	set duration keypress
@@ -296,31 +324,37 @@ define loop new_loop
 	setcycle 0 d1 300
 	setcycle 0 d2 700
 	setcycle 0 calcul X
+	setcycle 0 reponse X
 	setcycle 1 t1 1000
 	setcycle 1 t2 1000
 	setcycle 1 d1 1500
 	setcycle 1 d2 300
 	setcycle 1 calcul X
+	setcycle 1 reponse X
 	setcycle 2 t1 1000
 	setcycle 2 t2 1000
 	setcycle 2 d1 1500
 	setcycle 2 d2 700
 	setcycle 2 calcul X
+	setcycle 2 reponse X
 	setcycle 3 t1 1000
 	setcycle 3 t2 1000
 	setcycle 3 d1 700
 	setcycle 3 d2 1500
 	setcycle 3 calcul "5-3="
+	setcycle 3 reponse 2
 	setcycle 4 t1 1000
 	setcycle 4 t2 1000
 	setcycle 4 d1 700
 	setcycle 4 d2 300
 	setcycle 4 calcul "9-2="
+	setcycle 4 reponse 7
 	setcycle 5 t1 1000
 	setcycle 5 t2 1000
 	setcycle 5 d1 1500
 	setcycle 5 d2 300
 	setcycle 5 calcul "7-4="
+	setcycle 5 reponse 3
 	run new_sequence
 
 define sequence new_sequence
@@ -332,6 +366,8 @@ define sequence new_sequence
 	run new_2_sketchpad True
 	run new_3_sketchpad True
 	run new_1_keyboard_response True
+	run new_10_sketchpad True
+	run new_2_keyboard_response True
 	run new_logger True
 	run new_4_sketchpad True
 
@@ -399,6 +435,7 @@ define inline_script script_seq1
 	
 	sk_blue = Canvas()
 	sk_blue.rect(-50,-50,100,100, color="dodgerblue", fill=True) #(x,y,largeur, hauteur)
+	sk_blue.text(calcul)
 	
 	sk_red = Canvas()
 	sk_red.rect(-100,-100,200,200, color="firebrick", fill=True)
@@ -406,6 +443,7 @@ define inline_script script_seq1
 	sk_blue_and_red = Canvas()
 	sk_blue_and_red.rect(-100,-100,200,200, color="firebrick", fill=True)
 	sk_blue_and_red.rect(-50,-50,100,100, color="dodgerblue", fill=True)
+	sk_blue_and_red.text(calcul)
 	
 	sk_empty = Canvas()
 	
@@ -431,14 +469,18 @@ define loop training_loop
 	set continuous no
 	set break_if_on_first yes
 	set break_if False
-	setcycle 0 t1 500
+	setcycle 0 t1 700
 	setcycle 0 t2 2000
 	setcycle 0 d1 1000
 	setcycle 0 d2 400
+	setcycle 0 calcul "5-2="
+	setcycle 0 reponse 3
 	setcycle 1 t1 1000
-	setcycle 1 t2 200
+	setcycle 1 t2 400
 	setcycle 1 d1 500
 	setcycle 1 d2 2000
+	setcycle 1 calcul X
+	setcycle 1 reponse X
 	run training_sequence
 
 define sequence training_sequence
@@ -450,6 +492,8 @@ define sequence training_sequence
 	run empty True
 	run ask_response True
 	run keyboard_response True
+	run new_11_sketchpad True
+	run new_3_keyboard_response True
 	run corr_feedback "[correct]=1"
 	run incorr_feedback "[correct]=0"
 	run new_sketchpad True
