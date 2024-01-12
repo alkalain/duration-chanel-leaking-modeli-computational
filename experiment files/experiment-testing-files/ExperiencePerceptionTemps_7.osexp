@@ -1,0 +1,439 @@
+---
+API: 3
+OpenSesame: 4.0.13
+Platform: nt
+---
+set width 1024
+set title "Nouvelle expérience"
+set subject_parity even
+set subject_nr 0
+set start experiment
+set sound_sample_size -16
+set sound_freq 48000
+set sound_channels 2
+set sound_buf_size 1024
+set sampler_backend legacy
+set round_decimals 2
+set mouse_backend legacy
+set keyboard_backend legacy
+set height 768
+set fullscreen no
+set form_clicks no
+set foreground white
+set font_underline no
+set font_size 18
+set font_italic False
+set font_family mono
+set font_bold False
+set experiment_path "C:\\Users\\Utilisateur\\Downloads"
+set disable_garbage_collection False
+set description "The main experiment item"
+set color_backend legacy
+set clock_backend legacy
+set canvas_backend legacy
+set background "#3d3846"
+
+define sketchpad Instructions
+	set duration keypress
+	set description "Affiche les stimuli"
+	draw textline center=0 color=white font_bold=yes font_family=mono font_italic=no font_size=28 html=yes show_if=True text="Lors de chaque séquence, deux carrés bleus vont apparaitre et disparaitre, l'un après l'autre.<br />À la fin de chaque séquence, il faudra cliquer sur la touche 'q' si le premier carré est resté plus longtemps à l'écran ou sur la touche 'm' si le deuxième carré est resté à l'écran plus longtemps.<br /><br />Vous allez avoir trois séquences d'entrainement avant les séquences évaluées.<br /><br />Des carrés rouges vont aussi s'afficher. Ne vous en préoccupez pas.<br /><br />Cliquez sur n'importe quelle touche pour commencer." x=-448 y=-256 z_index=0
+
+define sketchpad ask_response
+	set duration 0
+	set description "Affiche les stimuli"
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse <br />('q' si le premier bleu a été plus long que le deuxième, ou 'm' dans le cas contraire)" x=0 y=0 z_index=0
+
+define sketchpad att_getter
+	set duration 500
+	set description "Affiche les stimuli"
+	draw fixdot color=white show_if=True style=default x=0 y=0 z_index=0
+
+define inline_script calcul_variables_inline_script
+	set description "Exécute du code Python"
+	set _run ""
+	set _prepare ""
+
+define inline_script calculate_corr_resp
+	set description "Exécute du code Python"
+	set _run ""
+	___prepare__
+	if var.t1 > var.t2 :
+	    var.correct_response = 'q'
+	else :
+	    var.correct_response = 'm'
+	#traiter le cas égal !
+	__end__
+
+define feedback corr_feedback
+	set reset_variables yes
+	set duration 600
+	set description "Fournit des commentaires au participant"
+	draw textline center=1 color="#33d17a" font_bold=yes font_family=mono font_italic=no font_size=40 html=yes show_if=True text=True x=0 y=0 z_index=0
+
+define sketchpad empty
+	set duration 400
+	set description "Affiche les stimuli"
+
+define sketchpad empty2
+	set duration keypress
+	set description "Affiche les stimuli"
+
+define loop experience_loop
+	set source_file ""
+	set source table
+	set repeat 1
+	set order random
+	set description "Exécute à plusieurs reprises un autre élément"
+	set cycles 2
+	set continuous no
+	set break_if_on_first yes
+	set break_if False
+	setcycle 0 empty_column ""
+	setcycle 1 empty_column ""
+	run new_1_sequence
+
+define sequence experiment
+	set flush_keyboard yes
+	set description "Lance un certain nombre d'éléments en séquence"
+	run Instructions True
+	run training_loop True
+	run experience_loop True
+	run new_9_sketchpad True
+
+define feedback incorr_feedback
+	set reset_variables yes
+	set duration 600
+	set description "Fournit des commentaires au participant"
+	draw textline center=1 color="#ed333b" font_bold=yes font_family=mono font_italic=no font_size=40 html=yes show_if=True text=False x=0 y=0 z_index=0
+
+define keyboard_response keyboard_response
+	set timeout infinite
+	set flush yes
+	set event_type keypress
+	set duration keypress
+	set description "Collecte les réponses du clavier"
+	set allowed_responses "q;m"
+
+define feedback new_1_feedback
+	set reset_variables yes
+	set duration 600
+	set description "Fournit des commentaires au participant"
+	draw textline center=1 color="#33d17a" font_bold=yes font_family=mono font_italic=no font_size=40 html=yes show_if=True text=True x=0 y=0 z_index=0
+
+define inline_script new_1_inline_script
+	set description "Exécute du code Python"
+	set _run ""
+	___prepare__
+	if var.t1 > var.t2 :
+	    var.correct_response = 'q'
+	else :
+	    var.correct_response = 'm'
+	#traiter le cas égal !
+	
+	#si on veut ne pas faire tous les cas.
+	#incr = incr + 1
+	__end__
+
+define keyboard_response new_1_keyboard_response
+	set timeout infinite
+	set flush yes
+	set event_type keypress
+	set duration keypress
+	set description "Collecte les réponses du clavier"
+	set allowed_responses "q;m"
+
+define sequence new_1_sequence
+	set flush_keyboard yes
+	set description "Lance un certain nombre d'éléments en séquence"
+	run new_7_sketchpad True
+	run new_8_sketchpad True
+	run new_inline_script True
+	run new_loop True
+
+define sketchpad new_1_sketchpad
+	set duration 500
+	set description "Affiche les stimuli"
+	draw fixdot color=white show_if=True style=default x=0 y=0 z_index=0
+
+define feedback new_2_feedback
+	set reset_variables yes
+	set duration 600
+	set description "Fournit des commentaires au participant"
+	draw textline center=1 color="#ed333b" font_bold=yes font_family=mono font_italic=no font_size=40 html=yes show_if=True text=False x=0 y=0 z_index=0
+
+define inline_script new_2_inline_script
+	set description "Exécute du code Python"
+	___run__
+	#Trial 1
+	
+	if t1_or_d1_alone > 0 :
+	    sk_blue.show()
+	    clock.sleep(var.t1_or_d1_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.d1)
+	    sk_blue.show()
+	    clock.sleep(var.t1_or_d1_alone)
+	    sklin=Canvas()
+	
+	else :
+	    sk_red.show()
+	    clock.sleep(-var.t1_or_d1_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.t1)
+	    sk_red.show()
+	    clock.sleep(-var.t1_or_d1_alone)
+	    sklin=Canvas()
+	
+	sk_empty.show()
+	clock.sleep(300)
+	
+	
+	
+	#Trial 2
+	
+	if t2_or_d2_alone > 0 :
+	    sk_blue.show()
+	    clock.sleep(var.t2_or_d2_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.d2)
+	    sk_blue.show()
+	    clock.sleep(var.t2_or_d2_alone)
+	
+	else :
+	    sk_red.show()
+	    clock.sleep(-var.t2_or_d2_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.t2)
+	    sk_red.show()
+	    clock.sleep(-var.t2_or_d2_alone)
+	
+	sk_empty.show()
+	clock.sleep(300)
+	__end__
+	___prepare__
+	sk_blue = Canvas()
+	sk_blue.rect(-50,-50,100,100, color="dodgerblue", fill=True) #(x,y,largeur, hauteur)
+	
+	
+	sk_red = Canvas()
+	sk_red.rect(-100,-100,200,200, color="firebrick", fill=True)
+	
+	
+	sk_blue_and_red = Canvas()
+	sk_blue_and_red.rect(-100,-100,200,200, color="firebrick", fill=True)
+	sk_blue_and_red.rect(-50,-50,100,100, color="dodgerblue", fill=True)
+	sk_blue_and_red.text("3+2=")
+	
+	sk_empty = Canvas()
+	
+	
+	#calcul des temps d'apparition
+	t1_or_d1_alone = (t1-d1)/2
+	#si la valeur est supérieur à 0, c'est t1,
+	#sinon c'est d1 qui "dépasera"au début et à la fin.
+	t2_or_d2_alone = (t2-d2)/2
+	__end__
+
+define sketchpad new_2_sketchpad
+	set duration 400
+	set description "Affiche les stimuli"
+
+define sketchpad new_3_sketchpad
+	set duration 0
+	set description "Affiche les stimuli"
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Donnez votre réponse <br />('q' si le premier bleu a été plus long que le deuxième, ou 'm' dans le cas contraire)" x=0 y=0 z_index=0
+
+define sketchpad new_4_sketchpad
+	set duration keypress
+	set description "Affiche les stimuli"
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="Essai suivant<br /><br />(cliquez sur espace)" x=0 y=0 z_index=0
+
+define sketchpad new_5_sketchpad
+	set duration keypress
+	set description "Affiche les stimuli"
+
+define sketchpad new_6_sketchpad
+	set duration keypress
+	set description "Affiche les stimuli"
+
+define sketchpad new_7_sketchpad
+	set duration 1000
+	set description "Affiche les stimuli"
+	draw textline center=0 color=white font_bold=no font_family=mono font_italic=no font_size=25 html=yes show_if=True text="Fin de la phase d'entrainement, début de l'expérience.<br />(les consignes sont les mêmes, mais les résultats que vous donnez sont utilisés dans l'exploitation de l'expérience).<br /><br />Cliquez sur espace pour commencer." x=-448 y=-128 z_index=0
+
+define sketchpad new_8_sketchpad
+	set duration keypress
+	set description "Affiche les stimuli"
+	draw textline center=0 color=white font_bold=no font_family=mono font_italic=no font_size=25 html=yes show_if=True text="Fin de la phase d'entrainement, début de l'expérience.<br />(les consignes sont les mêmes, mais les résultats que vous donnez sont utilisés dans l'exploitation de l'expérience).<br /><br />Cliquez sur espace pour commencer." x=-448 y=-128 z_index=0
+
+define sketchpad new_9_sketchpad
+	set duration keypress
+	set description "Affiche les stimuli"
+	draw textline center=1 color="#ffffff" font_bold=yes font_family=mono font_italic=yes font_size=28 html=yes show_if=True text="Merci beaucoup pour votre participation !!!" x=0 y=0 z_index=0
+
+define inline_script new_inline_script
+	set description "Exécute du code Python"
+	set _run ""
+	set _prepare "incr = 0"
+
+define logger new_logger
+	set description "Enregistre les données expérimentales"
+	set auto_log yes
+
+define loop new_loop
+	set source_file ""
+	set source table
+	set repeat 1
+	set order random
+	set description "Exécute à plusieurs reprises un autre élément"
+	set cycles 3
+	set continuous no
+	set break_if_on_first yes
+	set break_if never
+	setcycle 0 t1 1000
+	setcycle 0 t2 1000
+	setcycle 0 d1 300
+	setcycle 0 d2 700
+	setcycle 1 t1 1000
+	setcycle 1 t2 1000
+	setcycle 1 d1 1500
+	setcycle 1 d2 300
+	setcycle 2 t1 1000
+	setcycle 2 t2 1000
+	setcycle 2 d1 1500
+	setcycle 2 d2 700
+	run new_sequence
+
+define sequence new_sequence
+	set flush_keyboard yes
+	set description "Lance un certain nombre d'éléments en séquence"
+	run new_1_inline_script True
+	run new_1_sketchpad True
+	run new_2_inline_script True
+	run new_2_sketchpad True
+	run new_3_sketchpad True
+	run new_1_keyboard_response True
+	run new_logger True
+	run new_1_feedback "[correct]=1"
+	run new_2_feedback "[correct]=0"
+	run new_4_sketchpad True
+
+define sketchpad new_sketchpad
+	set duration keypress
+	set description "Affiche les stimuli"
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text="cliquez sur espace pour continuer l'entrainement." x=0 y=0 z_index=0
+
+define sketchpad next_seq
+	set duration keypress
+	set description "Affiche les stimuli"
+	draw textline center=1 color=white font_bold=no font_family=mono font_italic=no font_size=18 html=yes show_if=True text=press x=0 y=0 z_index=0
+
+define inline_script script_seq1
+	set description "Exécute du code Python"
+	___run__
+	#Trial 1
+	
+	if t1_or_d1_alone > 0 :
+	    sk_blue.show()
+	    clock.sleep(var.t1_or_d1_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.d1)
+	    sk_blue.show()
+	    clock.sleep(var.t1_or_d1_alone)
+	    sklin=Canvas()
+	
+	else :
+	    sk_red.show()
+	    clock.sleep(-var.t1_or_d1_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.t1)
+	    sk_red.show()
+	    clock.sleep(-var.t1_or_d1_alone)
+	    sklin=Canvas()
+	
+	sk_empty.show()
+	clock.sleep(300)
+	
+	
+	
+	#Trial 2
+	
+	if t2_or_d2_alone > 0 :
+	    sk_blue.show()
+	    clock.sleep(var.t2_or_d2_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.d2)
+	    sk_blue.show()
+	    clock.sleep(var.t2_or_d2_alone)
+	
+	else :
+	    sk_red.show()
+	    clock.sleep(-var.t2_or_d2_alone)
+	    sk_blue_and_red.show()
+	    clock.sleep(var.t2)
+	    sk_red.show()
+	    clock.sleep(-var.t2_or_d2_alone)
+	
+	sk_empty.show()
+	clock.sleep(300)
+	__end__
+	___prepare__
+	#définition des canvas
+	
+	sk_blue = Canvas()
+	sk_blue.rect(-50,-50,100,100, color="dodgerblue", fill=True) #(x,y,largeur, hauteur)
+	
+	sk_red = Canvas()
+	sk_red.rect(-100,-100,200,200, color="firebrick", fill=True)
+	
+	sk_blue_and_red = Canvas()
+	sk_blue_and_red.rect(-100,-100,200,200, color="firebrick", fill=True)
+	sk_blue_and_red.rect(-50,-50,100,100, color="dodgerblue", fill=True)
+	
+	sk_empty = Canvas()
+	
+	#calcul des temps d'apparition :
+	
+	t1_or_d1_alone = (t1-d1)/2 #si la valeur est supérieur à 0, c'est t1, sinon c'est d1 qui "dépasera"au début et à la fin.
+	
+	t2_or_d2_alone = (t2-d2)/2
+	__end__
+
+define inline_script script_seq2
+	set description "Exécute du code Python"
+	set _run ""
+	set _prepare ""
+
+define loop training_loop
+	set source_file ""
+	set source table
+	set repeat 1
+	set order sequential
+	set description "Exécute à plusieurs reprises un autre élément"
+	set cycles 2
+	set continuous no
+	set break_if_on_first yes
+	set break_if False
+	setcycle 0 t1 500
+	setcycle 0 t2 2000
+	setcycle 0 d1 1000
+	setcycle 0 d2 400
+	setcycle 1 t1 1000
+	setcycle 1 t2 200
+	setcycle 1 d1 500
+	setcycle 1 d2 2000
+	run training_sequence
+
+define sequence training_sequence
+	set flush_keyboard yes
+	set description "Lance un certain nombre d'éléments en séquence"
+	run calculate_corr_resp True
+	run att_getter True
+	run script_seq1 True
+	run empty True
+	run ask_response True
+	run keyboard_response True
+	run corr_feedback "[correct]=1"
+	run incorr_feedback "[correct]=0"
+	run new_sketchpad True
+
